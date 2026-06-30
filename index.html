@@ -613,7 +613,12 @@ function submitRecord(){
   var g=document.getElementById('sel-grade').value;
   var c=document.getElementById('sel-class').value;
   if(!school||!g||!c){showToast('⚠️ 請選擇年段、年級和班級');return}
-  if(!allPresent&&currentSeats.size===0){showToast('⚠️ 請選擇座號，或點「全班到齊」');return}
+  
+  // 修改處：未選取任何座號時，預設為全班到齊
+  if(currentSeats.size===0){
+    allPresent=true;
+  }
+  
   var now=new Date();
   var rec={
     id:Date.now(),
