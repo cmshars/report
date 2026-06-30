@@ -651,6 +651,15 @@ function formatDateDisplay(d) {
     }
     return d;
 }
+function formatTimeDisplay(t) {
+    if (!t) return '';
+    var m = String(t).match(/\b(\d{1,2}:\d{2})\b/);
+    if (m) {
+        var p = m[1].split(':');
+        return String(p[0]).padStart(2, '0') + ':' + p[1];
+    }
+    return String(t);
+}
 
 function loadRecords(){
   if (!isAdmin) return Promise.resolve(); // 阻擋一般使用者載入
@@ -694,7 +703,7 @@ function sortRecordsByClass(list){
     var db=String(formatDateDisplay(b.date)||'').split('/').map(Number);
     var dc=(da[0]||0)-(db[0]||0); if(dc===0)dc=(da[1]||0)-(db[1]||0);
     if(dc!==0)return dc;
-    var ta=a.time||'00:00', tb=b.time||'00:00';
+    var ta=formatTimeDisplay(a.time)||'00:00', tb=formatTimeDisplay(b.time)||'00:00';
     return ta<tb?-1:(ta>tb?1:0);
   });
 }
@@ -724,7 +733,7 @@ function renderRecords(){
   ct.innerHTML = list.map(function(r){
     var body='<div class="rec-seats">'+(r.seats.length===0?'<span style="color:var(--green);font-size:13px;font-weight:700">✓ 全班到齊</span>':r.seats.map(function(s){return '<span class="mini-chip">'+String(s).padStart(2,'0')+'</span>'}).join(''))+'</div>';
     var count=r.seats.length===0?'無人缺考':'缺考 '+r.seats.length+' 人';
-    var timeDisplay = escapeHtml(formatDateDisplay(r.date)) + ' ' + escapeHtml(r.time || '');
+    var timeDisplay = escapeHtml(formatDateDisplay(r.date)) + ' ' + escapeHtml(formatTimeDisplay(r.time));
     return '<div class="record-item"><div class="rec-header"><span class="rec-class">'+escapeHtml(r.className)+'</span><span class="rec-time">'+timeDisplay+'</span></div><div class="rec-body">'+body+'</div><div class="rec-footer"><span class="rec-count">'+count+'</span><div class="rec-btns"><button class="rec-btn copy" onclick="copyRecord('+r.id+')">複製</button><button class="rec-btn del" onclick="deleteRecord('+r.id+')">刪除</button></div></div></div>'
   }).join('')
 }
@@ -747,7 +756,7 @@ function copyRecord(id){
   var r=records.find(function(x){return x.id==id});if(!r)return;
   var s=r.seats.length===0?'無（全班到齊）':r.seats.map(function(s){return String(s).padStart(2,'0')}).join('、');
   var t='【缺考登錄】\n班級：'+r.className+'\n缺考座號：'+s+'\n缺考人數：'+r.seats.length+' 人';
-  copyText(t+'\n時間：'+formatDateDisplay(r.date)+' '+r.time)
+  copyText(t+'\n時間：'+formatDateDisplay(r.date)+' '+formatTimeDisplay(r.time))
 }
 
 function copyAll(){
@@ -801,8 +810,8 @@ function sortRecordsForExport(list) {
     if (caNum !== cbNum) return caNum - cbNum;
 
     // 5. 同班級按時間先到後排序
-    var ta = a.time || '00:00';
-    var tb = b.time || '00:00';
+    var ta = formatTimeDisplay(a.time) || '00:00';
+    var tb = formatTimeDisplay(b.time) || '00:00';
     return ta < tb ? -1 : (ta > tb ? 1 : 0);
   });
 }
@@ -819,7 +828,7 @@ function exportReport() {
   sorted.forEach(function(r) {
     var match = r.className.match(/(.+部)(.+?)年(.+)班/);
     var s = match ? match[1] : ''; var g = match ? match[2] : ''; var c = match ? match[3] : '';
-    rows.push([formatDateDisplay(r.date), s, g, c, r.seats.length === 0 ? '無人缺考' : r.seats.join('、'), r.time || '']);
+    rows.push([formatDateDisplay(r.date), s, g, c, r.seats.length === 0 ? '無人缺考' : r.seats.join('、'), formatTimeDisplay(r.time)]);
   });
 
   var header = rows.shift();
