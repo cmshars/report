@@ -543,7 +543,7 @@ var currentTask='absence';
 function updateClassOpts(){var s=document.getElementById('sel-school').value;var sel=document.getElementById('sel-class');if(!s){sel.innerHTML='<option value="">請先選擇年段</option>';return}var o='<option value="">請選擇班級</option>';if(s==='高中部')['甲','乙','丙','丁','戊','己','庚'].forEach(function(c){o+='<option value="'+c+'">'+c+'班</option>'});else for(var i=1;i<=10;i++)o+='<option value="'+i+'">'+i+'班</option>';sel.innerHTML=o}
 
 
-var MAX_SEAT=45,currentSeats=new Set(),allPresent=false;
+var MAX_SEAT=55,currentSeats=new Set(),allPresent=false;
 function buildPicker(){var p=document.getElementById('seat-picker');p.innerHTML='';for(var i=1;i<=MAX_SEAT;i++){var b=document.createElement('button');b.className='seat-btn';b.textContent=i;b.dataset.seat=i;b.onclick=(function(n){return function(){toggleSeat(n)}})(i);p.appendChild(b)}}
 function toggleSeat(n){allPresent=false;document.getElementById('all-present-notice').style.display='none';document.getElementById('present-btn').classList.remove('active');if(currentSeats.has(n))currentSeats.delete(n);else currentSeats.add(n);syncPickerUI();renderSummary()}
 function syncPickerUI(){document.querySelectorAll('.seat-btn').forEach(function(b){b.classList.toggle('selected',currentSeats.has(parseInt(b.dataset.seat)))})}
